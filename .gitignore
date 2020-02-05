@@ -1,2 +1,3 @@
+*lib/gl-matrix/*
 .*
 !.gitignore
