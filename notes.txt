@@ -1,0 +1,2 @@
+Make a draw chair function based on the view model matrix and normal matrices (so we can draw chairs all over and whatnot).
+	- Also do for other furniture to make scene composition easier.
