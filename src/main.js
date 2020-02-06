@@ -58,7 +58,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     var n = initVertexBuffers(gl);
     modelMatrix.setTranslate(0, 0, 0);
-    drawChair(gl, u_ModelMatrix, u_NormalMatrix, n);
+    drawTable(gl, u_ModelMatrix, u_NormalMatrix, n);
 }
 
 function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
