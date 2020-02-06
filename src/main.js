@@ -13,13 +13,13 @@ var VSHADER_SOURCE =
     }";
 
 var FSHADER_SOURCE =
-    '#ifdef GL_ES\n \
+    "#ifdef GL_ES\n \
     precision mediump float;\n \
     #endif\n \
     varying vec4 v_Color;\n \
     void main() {\n \
       gl_FragColor = v_Color;\n \
-    }';
+    }";
 
 var modelMatrix = new Matrix4();
 var viewMatrix = new Matrix4();
@@ -47,7 +47,7 @@ function main(){
     var u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
     var u_ProjMatrix = gl.getUniformLocation(gl.program, "u_ProjMatrix");  // TODO: Assert existance of uniforms.
 
-    viewMatrix.setLookAt(0, 0, 15, 0, 0, -100, 0, 1, 0);
+    viewMatrix.setLookAt(0, 5, 15, 0, 0, 0, 0, 1, 0);
     projMatrix.setPerspective(30, canvas.width/canvas.clientHeight, 1, 100);
     gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
     gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
@@ -58,6 +58,21 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     var n = initVertexBuffers(gl);
     modelMatrix.setTranslate(0, 0, 0);
+    pushMatrix(modelMatrix);
+        modelMatrix.translate(0, -0.5, -1.25);
+        drawChair(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix.translate(0, 0, 2.5);
+        modelMatrix.rotate(180, 0, 1, 0);
+        drawChair(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+    pushMatrix(modelMatrix);
+        modelMatrix.rotate(90, 0, 1, 0);
+        modelMatrix.translate(0, -0.5, -2.45);
+        drawChair(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix.rotate(180, 0, 1, 0);
+        modelMatrix.translate(0, 0, -4.7);
+        drawChair(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
     drawTable(gl, u_ModelMatrix, u_NormalMatrix, n);
 }
 
