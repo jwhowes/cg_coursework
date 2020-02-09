@@ -179,4 +179,4 @@ function drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix){
         modelMatrix.translate(0, 0, 8);
         drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
-  }
+}

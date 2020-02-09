@@ -1,11 +1,11 @@
-function initCylinderVertexBuffers(gl){
+function initCylinderVertexBuffers(gl, ratio){
     var step = 6;
     var vertices = [];
     var colors = [];
     var indices = [];
     for(var i = 0; i <= 720 + step; i += step){
         vertices.push(Math.cos(i*Math.PI/180)); vertices.push(-0.5); vertices.push(Math.sin(i*Math.PI/180));
-        vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(i*Math.PI/180));
+        vertices.push(Math.cos(ratio*i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(ratio*i*Math.PI/180));
         indices.push(i/step);
         colors.push(1); colors.push(0); colors.push(0);
     }
@@ -86,6 +86,6 @@ function drawSolidCylinder(gl, u_ModelMatrix, u_NormalMatrix){
         modelMatrix.translate(0, -1, 0);
         drawCircle(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
-    n = initCylinderVertexBuffers(gl);
+    n = initCylinderVertexBuffers(gl, 1);
     drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
 }
