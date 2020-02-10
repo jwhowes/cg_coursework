@@ -180,3 +180,18 @@ function drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix){
         drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
 }
+
+function drawLamp(gl, u_ModelMatrix, u_NormalMatrix){
+    var n = initVertexBuffers(gl);
+    pushMatrix(modelMatrix);
+      modelMatrix.scale(0.5, 1, 0.5);
+      modelMatrix.translate(0, -0.5, 0);
+      drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+    var n = initCylinderVertexBuffers(gl, 1.3, true);
+    pushMatrix(modelMatrix);
+      modelMatrix.scale(0.5625, 0.9375, 0.5625);
+      modelMatrix.translate(0, 0.5, 0);
+      drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+}
