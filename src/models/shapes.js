@@ -2,30 +2,33 @@ function initCylinderVertexBuffers(gl, ratio){
     var step = 6;
     var vertices = [];
     var colors = [];
+    var normals = [];
     var indices = [];
     for(var i = 0; i <= 720 + step; i += step){
         vertices.push(Math.cos(i*Math.PI/180)); vertices.push(-0.5); vertices.push(Math.sin(i*Math.PI/180));
         vertices.push(Math.cos(ratio*i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(ratio*i*Math.PI/180));
         indices.push(i/step);
         colors.push(1); colors.push(0); colors.push(0);
+        normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
+        normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
     }
     vertices = new Float32Array(vertices);
     colors = new Float32Array(colors);
+    normals = new Float32Array(normals);
     indices = new Uint8Array(indices);
-    var normals = vertices;
     if (!initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Color', colors, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
-
+  
     var indexBuffer = gl.createBuffer();
     if (!indexBuffer) {
-        console.log('Failed to create the buffer object');
-        return false;
+    console.log('Failed to create the buffer object');
+    return false;
     }
-
+  
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-
+  
     return indices.length;
 }
 
@@ -40,31 +43,34 @@ function drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n){
 }
 
 function initCircleVertexBuffers(gl){
+    var step = 6;
     var vertices = [0, 0, 0];
-    var colors = [1, 0, 0, 1]
-    var indices = [0]
-    for(var i = 0; i <= 360; i += 20){
+    var colors = [1, 0, 0];
+    var normals = [0, 1, 0];
+    var indices = [0];
+    for(var i = 0; i <= 360; i += step){
         vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0); vertices.push(Math.sin(i*Math.PI/180));
-        colors.push(1); colors.push(0); colors.push(0); colors.push(1);
-        indices.push(i/20 + 1);
+        colors.push(1); colors.push(0); colors.push(0);
+        normals.push(0); normals.push(1); normals.push(0);
+        indices.push(i/step + 1);
     }
     vertices = new Float32Array(vertices);
     colors = new Float32Array(colors);
+    normals = new Float32Array(normals);
     indices = new Uint8Array(indices);
-    var normals = vertices;
     if (!initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Color', colors, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
-
+  
     var indexBuffer = gl.createBuffer();
     if (!indexBuffer) {
     console.log('Failed to create the buffer object');
     return false;
     }
-
+  
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-
+  
     return indices.length;
 }
 
@@ -84,8 +90,9 @@ function drawSolidCylinder(gl, u_ModelMatrix, u_NormalMatrix){
         modelMatrix.translate(0, 0.5, 0);
         drawCircle(gl, u_ModelMatrix, u_NormalMatrix, n);
         modelMatrix.translate(0, -1, 0);
+        modelMatrix.rotate(180, 1, 0, 0);
         drawCircle(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
     n = initCylinderVertexBuffers(gl, 1);
     drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
-}
+  }
