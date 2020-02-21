@@ -195,3 +195,10 @@ function drawLamp(gl, u_ModelMatrix, u_NormalMatrix){
       drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
 }
+
+function drawGround(gl, u_ModelMatrix, u_NormalMatrix, n){
+    pushMatrix(modelMatrix);
+        modelMatrix.scale(50, 0.1, 50);
+        drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+}

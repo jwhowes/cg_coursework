@@ -8,7 +8,7 @@ function initCylinderVertexBuffers(gl, ratio, isLampShade){
         vertices.push(ratio*Math.cos(i*Math.PI/180)); vertices.push(-0.5); vertices.push(ratio*Math.sin(i*Math.PI/180));
         vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(i*Math.PI/180));
         indices.push(i/step);
-        colors.push(1); colors.push(0); colors.push(0); colors.push((isLampShade) ? 0.75 : 1);
+        colors.push(1); colors.push(0); colors.push(0); colors.push((isLampShade) ? 0.5 : 1);
         normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
         normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
     }
@@ -45,7 +45,7 @@ function drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n){
 function initCircleVertexBuffers(gl){
     var step = 6;
     var vertices = [0, 0, 0];
-    var colors = [1, 0, 0];
+    var colors = [1, 0, 0, 1];
     var normals = [0, 1, 0];
     var indices = [0];
     for(var i = 0; i <= 360; i += step){
