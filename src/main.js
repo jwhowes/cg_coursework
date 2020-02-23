@@ -177,7 +177,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix){
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 0, -20);
+			modelMatrix.translate(0, 0, -15.5);
 			modelMatrix.rotate(90, 1, 0, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
 		modelmatrix = popMatrix();
