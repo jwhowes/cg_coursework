@@ -202,3 +202,18 @@ function drawGround(gl, u_ModelMatrix, u_NormalMatrix, n){
         drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
 }
+
+function drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix){
+    var n = initVertexBuffers(gl);
+    pushMatrix(modelMatrix);
+        modelMatrix.translate(0, -1.25, 0);
+        modelMatrix.scale(0.1, 2.5, 0.1);
+        drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+    var n = initCylinderVertexBuffers(gl, 1.4, true);
+    pushMatrix(modelMatrix);
+        modelMatrix.translate(0, -3.25, 0);
+        modelMatrix.scale(1, 1.5, 1);
+        drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
+    modelMatrix = popMatrix();
+}

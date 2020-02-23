@@ -39,8 +39,27 @@ var modelMatrix = new Matrix4();
 var viewMatrix = new Matrix4();
 var projMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
+var light_rotation = [-45];
+var light_r_i = 0;
+
+function wait(ms){
+    var d = new Date();
+    var d2 = null;
+    do { d2 = new Date(); }
+    while(d2-d < ms);
+}
 
 function main(){
+    var light_r_step = 2;
+    var i = 0;
+    while(light_rotation[i] < 45){
+        light_rotation.push(light_rotation[i] + light_r_step);
+        i += 1;
+    }
+    while(light_rotation[i] > -45){
+        light_rotation.push(light_rotation[i] - light_r_step);
+        i += 1;
+    }
     var canvas = document.getElementById("webgl");
     var gl = getWebGLContext(canvas);
     if(!gl){
@@ -79,43 +98,52 @@ function main(){
     projMatrix.setPerspective(30, canvas.width/canvas.clientHeight, 1, 100);
     gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
     gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
-    draw(gl, u_ModelMatrix, u_NormalMatrix);
+    requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix))
 }
 
 function draw(gl, u_ModelMatrix, u_NormalMatrix){
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    modelMatrix.setTranslate(0, 0, 0);
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(-5, 0, -10);
-        drawLamp(gl, u_ModelMatrix, u_NormalMatrix);
+    return function(timestamp){
+        light_r_i = (light_r_i + 1) % light_rotation.length;
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        modelMatrix.setTranslate(0, 0, 0);
         pushMatrix(modelMatrix);
-            modelMatrix.translate(0, -1, 0);
-            drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix);
+            modelMatrix.translate(0, 6, 0);
+            modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
+            drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix);
         modelMatrix = popMatrix();
-    modelMatrix = popMatrix();
-    var n = initVertexBuffers(gl);
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(5, 0, -5);
-        modelMatrix.rotate(90, 0, 1, 0);
-        drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, n);
-    modelMatrix = popMatrix();
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(-5, 0, -15);
-        drawShelves(gl, u_ModelMatrix, u_NormalMatrix, n);
-    modelMatrix = popMatrix();
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(0, 1.5, -15);
-        drawTV(gl, u_ModelMatrix, u_NormalMatrix, n);
-    modelMatrix = popMatrix();
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(0, -2.5, 0)
-        drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
-    modelMatrix = popMatrix();
-    pushMatrix(modelMatrix);
-        modelMatrix.translate(0, 0, -20);
-        modelMatrix.rotate(90, 1, 0, 0);
-        drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
-    modelmatrix = popMatrix();
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(-5, 0, -10);
+            drawLamp(gl, u_ModelMatrix, u_NormalMatrix);
+            pushMatrix(modelMatrix);
+                modelMatrix.translate(0, -1, 0);
+                drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix);
+            modelMatrix = popMatrix();
+        modelMatrix = popMatrix();
+        var n = initVertexBuffers(gl);
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(5, 0, -5);
+            modelMatrix.rotate(90, 0, 1, 0);
+            drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix = popMatrix();
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(-5, 0, -15);
+            drawShelves(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix = popMatrix();
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(0, 1.5, -15);
+            drawTV(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix = popMatrix();
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(0, -2.5, 0)
+            drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix = popMatrix();
+        pushMatrix(modelMatrix);
+            modelMatrix.translate(0, 0, -20);
+            modelMatrix.rotate(90, 1, 0, 0);
+            drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelmatrix = popMatrix();
+        requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix));
+    }
 }
 
 function initArrayBuffer(gl, attribute, data, num, type){  // Assigns atttribute to the array buffer containing data with vSize n and type type
