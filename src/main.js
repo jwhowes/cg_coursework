@@ -107,7 +107,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix){
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         modelMatrix.setTranslate(0, 0, 0);
         pushMatrix(modelMatrix);
-            modelMatrix.translate(0, 6, 0);
+            modelMatrix.translate(0, 6, -5);
             modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
             drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix);
         modelMatrix = popMatrix();
