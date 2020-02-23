@@ -41,6 +41,10 @@ var projMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
 var light_rotation = [-45];
 var light_r_i = 0;
+var camera_x = 0.0;
+var camera_y = 2.5;
+var camera_z = 25.0;
+var camera_rotate = 4.71239;
 
 function wait(ms){
 	var d = new Date();
@@ -94,18 +98,53 @@ function main(){
 	ambientLight.normalize();
 	gl.uniform3fv(u_AmbientLight, ambientLight.elements);
 
-	viewMatrix.setLookAt(0, 5, 25, 0, 0, 0, 0, 1, 0);
+	viewMatrix.setLookAt(camera_x, camera_y, camera_z, camera_x, camera_y - 5, camera_z - 25, 0, 1, 0);
 	projMatrix.setPerspective(30, canvas.width/canvas.clientHeight, 1, 100);
 	gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 	gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
-	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix))
+	document.onkeydown = function(ev){
+		keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix);
+	};
+	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix));
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix){
+function keydown(ev){
+	switch(ev.keyCode){
+		case 87: // 'w' key
+			camera_z -= 0.5;
+			break;
+		case 65: // 'a' key
+			camera_x -= 0.5;
+			break;
+		case 83: // 's' key
+			camera_z += 0.5;
+			break;
+		case 68: // 'd' key
+			camera_x += 0.5;
+			break;
+		case 37: // left arrow key
+			camera_rotate -= 0.01;
+			break;
+		case 39: // right arrow key
+			camera_rotate += 0.01;
+			break;
+		case 82: // 'r' key (reset camera)
+			console.log(ev.keyCode);
+			camera_x = 0.0;
+			camera_y = 2.5;
+			camera_z = 25.0;
+			camera_rotate = 4.71239;
+			break;
+	}
+}
+
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix){
 	return function(timestamp){
+		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
+		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 		light_r_i = (light_r_i + 1) % light_rotation.length;
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		modelMatrix.setTranslate(0, 0, 0);
+		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 6, -5);
 			modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
@@ -142,7 +181,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix){
 			modelMatrix.rotate(90, 1, 0, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
 		modelmatrix = popMatrix();
-		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix));
+		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix));
 	}
 }
 
