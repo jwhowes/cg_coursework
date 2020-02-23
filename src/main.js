@@ -30,8 +30,8 @@ var FSHADER_SOURCE =
 		vec3 normal = normalize(v_Normal);\n\
 		vec3 lightDirection = normalize(u_LightPosition - v_Position);\n\
 		float nDotL = max(dot(lightDirection, normal), 0.0);\n\
-		vec3 diffuse = u_LightColor * v_Color.rgb * nDotL;\n\
-		vec3 ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
+		vec3 diffuse = 0.85 * u_LightColor * v_Color.rgb * nDotL;\n\
+		vec3 ambient = 0.15 * u_AmbientLight * v_Color.rgb;\n\
 		gl_FragColor = vec4(diffuse + ambient, v_Color.a);\n\
 	}";
 
