@@ -26,7 +26,6 @@ var FSHADER_SOURCE =
 	uniform vec3 u_LightColor;\n\
     uniform vec3 u_S_LightPosition;\n\
     uniform bool u_UseTextures;\n\
-    //uniform vec3 u_D_LightPosition;\n\
     uniform vec3 u_AmbientLight;\n\
     uniform sampler2D u_Sampler;\n\
 	varying vec4 v_Color;\n\
@@ -52,13 +51,11 @@ var modelMatrix = new Matrix4();
 var viewMatrix = new Matrix4();
 var projMatrix = new Matrix4();
 var g_normalMatrix = new Matrix4();
-var light_rotation = [-45];
-var light_r_i = 0;
+var light_r = 0;
 var camera_x = 0.0;
 var camera_y = 2.5;
 var camera_z = 25.0;
 var camera_rotate = 4.71239;
-var d_lightPos = new Vector3([camera_x, 4.25 - camera_y, -camera_z]);
 
 function wait(ms){
 	var d = new Date();
@@ -68,16 +65,6 @@ function wait(ms){
 }
 
 function main(){
-	var light_r_step = 2;
-	var i = 0;
-	while(light_rotation[i] < 45){
-		light_rotation.push(light_rotation[i] + light_r_step);
-		i += 1;
-	}
-	while(light_rotation[i] > -45){
-		light_rotation.push(light_rotation[i] - light_r_step);
-		i += 1;
-	}
 	var canvas = document.getElementById("webgl");
 	var gl = getWebGLContext(canvas);
 	if(!gl){
@@ -99,7 +86,6 @@ function main(){
 	var u_ProjMatrix = gl.getUniformLocation(gl.program, "u_ProjMatrix");
 	var u_LightColor = gl.getUniformLocation(gl.program, "u_LightColor");
     var u_S_LightPosition = gl.getUniformLocation(gl.program, "u_S_LightPosition");
-    var u_D_LightPosition = gl.getUniformLocation(gl.program, "u_D_LightPosition");
     var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
     var u_Sampler = gl.getUniformLocation(gl.program, "u_Sampler");
     var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
@@ -108,9 +94,6 @@ function main(){
 
 	var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
     gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
-    
-    gl.uniform3fv(u_D_LightPosition, d_lightPos.elements);
-
 	var ambientLight = new Vector3([1, 1, 1]);
 	ambientLight.normalize();
 	gl.uniform3fv(u_AmbientLight, ambientLight.elements);
@@ -122,7 +105,7 @@ function main(){
 	document.onkeydown = function(ev){
 		keydown(ev);
 	};
-	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures));
+	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_Sampler, u_UseTextures));
 }
 
 function keydown(ev){
@@ -154,11 +137,11 @@ function keydown(ev){
 	}
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures){
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures){
 	return function(timestamp){
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-        light_r_i = (light_r_i + 1) % light_rotation.length;
+        light_r += 0.1;
         modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
         var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
         gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
@@ -166,7 +149,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 7.5, -5);
-			modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
+			modelMatrix.rotate(45*Math.sin(light_r), 0, 0, 1);
 			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
@@ -188,7 +171,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 			drawShelves(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 1.5, -15);
+			modelMatrix.translate(0, 1.5, -10);
 			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures,  u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
@@ -200,7 +183,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 			modelMatrix.rotate(90, 1, 0, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelmatrix = popMatrix();
-		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures));
+		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_Sampler, u_UseTextures));
 	}
 }
 

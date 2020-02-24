@@ -125,10 +125,10 @@ function drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures, u_U
 		modelMatrix.scale(5, 2.8125, 0.1);
 		TVTexture = gl.createTexture();
 		TVTexture.image = new Image();
+		TVTexture.image.src = "../resources/tv.png";
 		TVTexture.onload = function(){
 			drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, TVTexture, u_Sampler, u_UseTextures, n);
 		}
-		TVTexture.image.src = "../resources/tv.png";
 	modelMatrix = popMatrix();
 
 	pushMatrix(modelMatrix);
