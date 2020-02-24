@@ -42,7 +42,7 @@ var FSHADER_SOURCE =
             vec4 TexColor = texture2D(u_Sampler, v_TexCoords);\n\
             s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
         }else{\n\
-            vec3 s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
+            s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
         }\n\
 		vec3 ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
 		gl_FragColor = vec4(s_diffuse + ambient, v_Color.a);\n\
@@ -163,45 +163,42 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
         var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
         gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
 
-        d_lightPos.elements[1] = -10;
-        gl.uniform3fv(u_D_LightPosition, d_lightPos.elements);
-
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 7.5, -5);
 			modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
-			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix);
+			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(-5, 0, -10);
 			drawLamp(gl, u_ModelMatrix, u_NormalMatrix);
 			pushMatrix(modelMatrix);
 				modelMatrix.translate(0, -1, 0);
-				drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix);
+				drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures);
 			modelMatrix = popMatrix();
 		modelMatrix = popMatrix();
 		var n = initVertexBuffers(gl);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(5, 0, -5);
 			modelMatrix.rotate(90, 0, 1, 0);
-			drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, n);
+			drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(-5, 0, -15);
-			drawShelves(gl, u_ModelMatrix, u_NormalMatrix, n);
+			drawShelves(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 1.5, -15);
-			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures,  n);
+			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures,  u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, -2.5, 0);
-			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
+			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 0, -15.5);
 			modelMatrix.rotate(90, 1, 0, 0);
-			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
+			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelmatrix = popMatrix();
 		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures));
 	}

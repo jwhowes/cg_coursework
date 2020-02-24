@@ -148,20 +148,14 @@ function initVertexBuffers(gl){
 	return indices.length;
 }
 
-function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
+function drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n) {
+    gl.uniform1i(u_UseTextures, false);
 	pushMatrix(modelMatrix);
-
-		// Pass the model matrix to the uniform variable
 		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-
-		// Calculate the normal transformation matrix and pass it to u_NormalMatrix
 		g_normalMatrix.setInverseOf(modelMatrix);
 		g_normalMatrix.transpose();
 		gl.uniformMatrix4fv(u_NormalMatrix, false, g_normalMatrix.elements);
-
-		// Draw the cube
 		gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
-
 	modelMatrix = popMatrix();
 }
 
@@ -172,5 +166,11 @@ function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, texture, u_Sample
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.uniform1i(u_Sampler, 0);
     gl.uniform1i(u_UseTextures, true);
-    drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    pushMatrix(modelMatrix);
+		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+		g_normalMatrix.setInverseOf(modelMatrix);
+		g_normalMatrix.transpose();
+		gl.uniformMatrix4fv(u_NormalMatrix, false, g_normalMatrix.elements);
+		gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+	modelMatrix = popMatrix();
 }
