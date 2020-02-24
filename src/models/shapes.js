@@ -164,3 +164,13 @@ function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
 
 	modelMatrix = popMatrix();
 }
+
+function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, texture, u_Sampler, u_UseTextures, n){
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texture.image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.uniform1i(u_Sampler, 0);
+    gl.uniform1i(u_UseTextures, true);
+    drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+}

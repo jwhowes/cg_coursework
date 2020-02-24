@@ -1,19 +1,22 @@
 var VSHADER_SOURCE =
 	"attribute vec4 a_Position;\n\
 	attribute vec4 a_Color;\n\
-	attribute vec4 a_Normal;\n\
+    attribute vec4 a_Normal;\n\
+    attribute vec2 a_TexCoords;\n\
 	uniform mat4 u_ModelMatrix;\n\
 	uniform mat4 u_NormalMatrix;\n\
 	uniform mat4 u_ViewMatrix;\n\
 	uniform mat4 u_ProjMatrix;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
-	varying vec3 v_Normal;\n\
+    varying vec3 v_Normal;\n\
+    varying vec2 v_TexCoords;\n\
 	void main(){\n\
 		gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n\
 		v_Position = vec3(u_ModelMatrix * a_Position);\n\
 		v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n\
-		v_Color = a_Color;\n\
+        v_Color = a_Color;\n\
+        v_TexCoords = a_TexCoords;\n\
 	}";
 
 var FSHADER_SOURCE =
@@ -21,18 +24,28 @@ var FSHADER_SOURCE =
 	precision mediump float;\n\
 	#endif\n\
 	uniform vec3 u_LightColor;\n\
-	uniform vec3 u_LightPosition;\n\
-	uniform vec3 u_AmbientLight;\n\
+    uniform vec3 u_S_LightPosition;\n\
+    uniform bool u_UseTextures;\n\
+    //uniform vec3 u_D_LightPosition;\n\
+    uniform vec3 u_AmbientLight;\n\
+    uniform sampler2D u_Sampler;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
-	varying vec3 v_Normal;\n\
+    varying vec3 v_Normal;\n\
+    varying vec2 v_TexCoords;\n\
 	void main() {\n\
 		vec3 normal = normalize(v_Normal);\n\
-		vec3 lightDirection = normalize(u_LightPosition - v_Position);\n\
-		float nDotL = max(dot(lightDirection, normal), 0.0);\n\
-		vec3 diffuse = 0.85 * u_LightColor * v_Color.rgb * nDotL;\n\
-		vec3 ambient = 0.15 * u_AmbientLight * v_Color.rgb;\n\
-		gl_FragColor = vec4(diffuse + ambient, v_Color.a);\n\
+		vec3 s_lightDirection = normalize(u_S_LightPosition - v_Position);\n\
+		float s_nDotL = max(dot(s_lightDirection, normal), 0.0);\n\
+        vec3 s_diffuse;\n\
+        if(u_UseTextures){\n\
+            vec4 TexColor = texture2D(u_Sampler, v_TexCoords);\n\
+            s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
+        }else{\n\
+            vec3 s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
+        }\n\
+		vec3 ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
+		gl_FragColor = vec4(s_diffuse + ambient, v_Color.a);\n\
 	}";
 
 var modelMatrix = new Matrix4();
@@ -45,6 +58,7 @@ var camera_x = 0.0;
 var camera_y = 2.5;
 var camera_z = 25.0;
 var camera_rotate = 4.71239;
+var d_lightPos = new Vector3([camera_x, 4.25 - camera_y, -camera_z]);
 
 function wait(ms){
 	var d = new Date();
@@ -84,28 +98,31 @@ function main(){
 	var u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
 	var u_ProjMatrix = gl.getUniformLocation(gl.program, "u_ProjMatrix");
 	var u_LightColor = gl.getUniformLocation(gl.program, "u_LightColor");
-	var u_LightPosition = gl.getUniformLocation(gl.program, "u_LightPosition");
-	var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
+    var u_S_LightPosition = gl.getUniformLocation(gl.program, "u_S_LightPosition");
+    var u_D_LightPosition = gl.getUniformLocation(gl.program, "u_D_LightPosition");
+    var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
+    var u_Sampler = gl.getUniformLocation(gl.program, "u_Sampler");
+    var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
 
-	// Set lighting info (white light coming from a bit to the right and above the camera (behind it too)):
 	gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
 
-	var lightPos = new Vector3([0, 1, 0]);
-	lightPos.normalize();
-	gl.uniform3fv(u_LightPosition, lightPos.elements);
+	var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
+    gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
+    
+    gl.uniform3fv(u_D_LightPosition, d_lightPos.elements);
 
 	var ambientLight = new Vector3([1, 1, 1]);
 	ambientLight.normalize();
 	gl.uniform3fv(u_AmbientLight, ambientLight.elements);
 
-	viewMatrix.setLookAt(camera_x, camera_y, camera_z, camera_x, camera_y - 5, camera_z - 25, 0, 1, 0);
+	viewMatrix.setLookAt(0, 0, 0, 0, 0, 0, 0, 1, 0);
 	projMatrix.setPerspective(30, canvas.width/canvas.clientHeight, 1, 100);
 	gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 	gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
 	document.onkeydown = function(ev){
-		keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix);
+		keydown(ev);
 	};
-	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix));
+	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures));
 }
 
 function keydown(ev){
@@ -129,7 +146,6 @@ function keydown(ev){
 			camera_rotate += 0.01;
 			break;
 		case 82: // 'r' key (reset camera)
-			console.log(ev.keyCode);
 			camera_x = 0.0;
 			camera_y = 2.5;
 			camera_z = 25.0;
@@ -138,15 +154,21 @@ function keydown(ev){
 	}
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix){
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures){
 	return function(timestamp){
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-		light_r_i = (light_r_i + 1) % light_rotation.length;
+        light_r_i = (light_r_i + 1) % light_rotation.length;
+        modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
+        var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
+        gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
+
+        d_lightPos.elements[1] = -10;
+        gl.uniform3fv(u_D_LightPosition, d_lightPos.elements);
+
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 6, -5);
+			modelMatrix.translate(0, 7.5, -5);
 			modelMatrix.rotate(light_rotation[light_r_i], 0, 0, 1);
 			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix);
 		modelMatrix = popMatrix();
@@ -170,10 +192,10 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix){
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 1.5, -15);
-			drawTV(gl, u_ModelMatrix, u_NormalMatrix, n);
+			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures,  n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, -2.5, 0)
+			modelMatrix.translate(0, -2.5, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
@@ -181,7 +203,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix){
 			modelMatrix.rotate(90, 1, 0, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, n);
 		modelmatrix = popMatrix();
-		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix));
+		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures));
 	}
 }
 

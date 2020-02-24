@@ -120,10 +120,14 @@ function drawTable(gl, u_ModelMatrix, u_NormalMatrix, n){
 	modelMatrix = popMatrix();
 }
 
-function drawTV(gl, u_ModelMatrix, u_NormalMatrix, n){
+function drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures, n){
+	TVTexture = gl.createTexture();
+	TVTexture.image = new Image();
+	TVTexture.image.src = "../resources/tv.png";
+
 	pushMatrix(modelMatrix);
 		modelMatrix.scale(5, 2.8125, 0.1);
-		drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, TVTexture, u_Sampler, u_UseTextures, n);
 	modelMatrix = popMatrix();
 
 	pushMatrix(modelMatrix);
