@@ -6,7 +6,7 @@ var VSHADER_SOURCE =
 	uniform mat4 u_ModelMatrix;\n\
 	uniform mat4 u_NormalMatrix;\n\
 	uniform mat4 u_ViewMatrix;\n\
-	uniform mat4 u_ProjMatrix;\n\
+    uniform mat4 u_ProjMatrix;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
     varying vec3 v_Normal;\n\
@@ -37,14 +37,15 @@ var FSHADER_SOURCE =
 		vec3 s_lightDirection = normalize(u_S_LightPosition - v_Position);\n\
 		float s_nDotL = max(dot(s_lightDirection, normal), 0.0);\n\
         vec3 s_diffuse;\n\
+        vec4 TexColor;\n\
         if(u_UseTextures){\n\
-            vec4 TexColor = texture2D(u_Sampler, v_TexCoords);\n\
+            TexColor = texture2D(u_Sampler, v_TexCoords);\n\
             s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
         }else{\n\
             s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
         }\n\
 		vec3 ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
-		gl_FragColor = vec4(s_diffuse + ambient, v_Color.a);\n\
+		gl_FragColor = vec4(ambient + s_diffuse, v_Color.a);\n\
 	}";
 
 var modelMatrix = new Matrix4();
@@ -104,7 +105,13 @@ function main(){
 	gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
 	document.onkeydown = function(ev){
 		keydown(ev);
-	};
+    };
+    TVTexture = gl.createTexture();
+    TVTexture.image = new Image();
+    TVTexture.image.onload = function(){
+        loadTexture(gl, TVTexture, u_Sampler, u_UseTextures);
+    };
+    TVTexture.image.src = "../resources/sky.jpg";
 	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_Sampler, u_UseTextures));
 }
 
@@ -137,11 +144,11 @@ function keydown(ev){
 	}
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_D_LightPosition, u_Sampler, u_UseTextures){
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_Sampler, u_UseTextures){
 	return function(timestamp){
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-        light_r += 0.1;
+        light_r = (light_r + 0.1) % 360;
         modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
         var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
         gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
@@ -172,7 +179,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 1.5, -10);
-			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_Sampler, u_UseTextures,  u_UseTextures, n);
+			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, -2.5, 0);
@@ -192,9 +199,8 @@ function initArrayBuffer(gl, attribute, data, num, type){  // Assigns atttribute
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
 	var a_attribute = gl.getAttribLocation(gl.program, attribute);
-	gl.vertexAttribPointer(a_attribute, num, type, false, 0, 0);
+	gl.vertexAttribPointer(a_attribute, num, type, false, data.BYTES_PER_ELEMENT * num, 0);
 	gl.enableVertexAttribArray(a_attribute);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
 	return true;
 }
 
