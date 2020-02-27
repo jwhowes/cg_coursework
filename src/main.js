@@ -25,7 +25,7 @@ var FSHADER_SOURCE =
 	#endif\n\
 	uniform vec3 u_LightColor;\n\
     uniform vec3 u_S_LightPosition;\n\
-    uniform int u_UseTextures;\n\
+    uniform bool u_UseTextures;\n\
     uniform vec3 u_AmbientLight;\n\
 	uniform sampler2D u_Sampler;\n\
 	varying vec4 v_Color;\n\
@@ -39,7 +39,7 @@ var FSHADER_SOURCE =
         vec3 s_diffuse;\n\
 		vec4 TexColor;\n\
 		vec3 ambient;\n\
-		if(u_UseTextures != 0){\n\
+		if(u_UseTextures){\n\
 			vec4 TexColor = texture2D(u_Sampler, v_TexCoords);\n\
 			s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
 			ambient = 0.25 * u_AmbientLight * TexColor.rgb;\n\
@@ -119,6 +119,10 @@ function main(){
 	BrickTexture = gl.createTexture();
 	BrickTexture.image = new Image();
 	BrickTexture.image.src = "../resources/brick.jpg";
+
+	PaintingTexture = gl.createTexture();
+	PaintingTexture.image = new Image();
+	PaintingTexture.image.src = "../resources/painting.jpg";
 	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_UseTextures, u_Sampler));
 }
 
@@ -155,7 +159,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 	return function(timestamp){
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-        light_r = (light_r + 0.1) % 360;
+        light_r += 2*Math.PI/120;
         modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
         var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
         gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
@@ -199,7 +203,12 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 			modelMatrix.translate(0, 0, -15.5);
 			modelMatrix.rotate(90, 1, 0, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
-		modelmatrix = popMatrix();
+		modelMatrix = popMatrix();
+		loadTexture(gl, PaintingTexture, u_Sampler);
+		pushMatrix(modelMatrix);
+			modelMatrix.translate(7.5, 3.5, -15);
+			drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix = popMatrix();
 		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_UseTextures, u_Sampler));
 	}
 }

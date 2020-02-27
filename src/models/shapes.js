@@ -114,14 +114,6 @@ function initVertexBuffers(gl){
 		-0.5,-0.5,-0.5,   0.5,-0.5,-0.5,   0.5,-0.5, 0.5,  -0.5,-0.5, 0.5, // v7-v4-v3-v2 down
 		0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5  // v4-v7-v6-v5 back
 	]);
-	var colors = new Float32Array([	// Colors
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v1-v2-v3 front
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v3-v4-v5 right
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v5-v6-v1 up
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v1-v6-v7-v2 left
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v7-v4-v3-v2 down
-		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1　	// v4-v7-v6-v5 back
-	]);
 	var normals = new Float32Array([	// Normal
 		0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
 		1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
@@ -148,7 +140,6 @@ function initVertexBuffers(gl){
 		20,21,22,  20,22,23	 // back
 	]);
 	initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT);
-	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
     initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT);
     initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
 
@@ -169,7 +160,8 @@ function drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n) {
 	modelMatrix = popMatrix();
 }
 
-function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, n){
+function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
+	gl.uniform1i(u_UseTextures, 1);
 	pushMatrix(modelMatrix);
 		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 		g_normalMatrix.setInverseOf(modelMatrix);
@@ -180,7 +172,7 @@ function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, n){
 }
 
 function loadTexture(gl, texture, sampler){
-    gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texture.image);

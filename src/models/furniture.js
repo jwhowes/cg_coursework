@@ -1,13 +1,4 @@
 function drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
-	var colors = new Float32Array([	// Colors
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v1-v2-v3 front
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v3-v4-v5 right
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v5-v6-v1 up
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v1-v6-v7-v2 left
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v7-v4-v3-v2 down
-		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1　	// v4-v7-v6-v5 back
-	]);
-	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	// Model the chair seat
 	pushMatrix(modelMatrix);
 	  modelMatrix.scale(0.75, 0.75, 0.75);
@@ -57,6 +48,15 @@ function drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
   }
 
 function drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
+	var colors = new Float32Array([	// Colors
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v1-v2-v3 front
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v3-v4-v5 right
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v0-v5-v6-v1 up
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v1-v6-v7-v2 left
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1,	 // v7-v4-v3-v2 down
+		0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,   0.8314, 0.6157, 0.2980, 1,  0.8314, 0.6157, 0.2980, 1　	// v4-v7-v6-v5 back
+	]);
+	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	pushMatrix(modelMatrix);
 		modelMatrix.translate(0, -0.5, -1.25);
 		drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
@@ -151,7 +151,7 @@ function drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
 	pushMatrix(modelMatrix);
 		modelMatrix.scale(5, 2.8125, 0.1);
 		gl.uniform1i(u_UseTextures, 1);
-		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, n);
+		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 	modelMatrix = popMatrix();
 
 	pushMatrix(modelMatrix);
@@ -229,6 +229,15 @@ function drawCoffeeTable(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 
 function drawLamp(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 	var n = initVertexBuffers(gl);
+	var colors = new Float32Array([	// Colors
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v1-v2-v3 front
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v3-v4-v5 right
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v5-v6-v1 up
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v1-v6-v7-v2 left
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v7-v4-v3-v2 down
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1　	// v4-v7-v6-v5 back
+	]);
+	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	pushMatrix(modelMatrix);
 	  modelMatrix.scale(0.5, 1, 0.5);
 	  modelMatrix.translate(0, -0.5, 0);
@@ -246,12 +255,21 @@ function drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
 	pushMatrix(modelMatrix);
 		modelMatrix.scale(50, 0.1, 50);
 		gl.uniform1i(u_UseTextures, 2);
-		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, n);
+		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 	modelMatrix = popMatrix();
 }
 
 function drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 	var n = initVertexBuffers(gl);
+	var colors = new Float32Array([	// Colors
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v1-v2-v3 front
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v3-v4-v5 right
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v0-v5-v6-v1 up
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v1-v6-v7-v2 left
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1,	 // v7-v4-v3-v2 down
+		1, 0, 0, 1,   1, 0, 0, 1,   1, 0, 0, 1,  1, 0, 0, 1　	// v4-v7-v6-v5 back
+	]);
+	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	pushMatrix(modelMatrix);
 		modelMatrix.translate(0, -1.25, 0);
 		modelMatrix.scale(0.1, 2.5, 0.1);
@@ -262,5 +280,35 @@ function drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 		modelMatrix.translate(0, -3.25, 0);
 		modelMatrix.scale(1, 1.5, 1);
 		drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n);
+	modelMatrix = popMatrix();
+}
+
+function drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
+	pushMatrix(modelMatrix);
+		modelMatrix.scale(2.8125, 5, 0.1);
+		drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+	modelMatrix = popMatrix();
+	var colors = new Float32Array([	// Colors
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1,	 // v0-v1-v2-v3 front
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1,	 // v0-v3-v4-v5 right
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1,	 // v0-v5-v6-v1 up
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1,	 // v1-v6-v7-v2 left
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1,	 // v7-v4-v3-v2 down
+		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1　	// v4-v7-v6-v5 back
+	]);
+	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
+	pushMatrix(modelMatrix);
+		modelMatrix.scale(2.8125, 0.25, 0.1);
+		modelMatrix.translate(0, -9.5, 1);
+		drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix.translate(0, 19, 0);
+		drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+	modelMatrix = popMatrix();
+	pushMatrix(modelMatrix);
+		modelMatrix.scale(0.25, 5, 0.1);
+		modelMatrix.translate(-5.125, 0, 1);
+		drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix.translate(10.25, 0, 0);
+		drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 	modelMatrix = popMatrix();
 }
