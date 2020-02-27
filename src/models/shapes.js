@@ -8,7 +8,7 @@ function initCylinderVertexBuffers(gl, ratio, isLampShade){
 		vertices.push(ratio*Math.cos(i*Math.PI/180)); vertices.push(-0.5); vertices.push(ratio*Math.sin(i*Math.PI/180));
 		vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(i*Math.PI/180));
 		indices.push(i/step);
-		colors.push(1); colors.push(0); colors.push(0); colors.push((isLampShade) ? 0.5 : 1);
+		colors.push(0); colors.push(0.5); colors.push(1); colors.push((isLampShade) ? 0.5 : 1);
 		normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
 		normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
 	}
@@ -45,12 +45,12 @@ function drawCylinder(gl, u_ModelMatrix, u_NormalMatrix, n){
 function initCircleVertexBuffers(gl){
 	var step = 6;
 	var vertices = [0, 0, 0];
-	var colors = [1, 0, 0, 1];
+	var colors = [0, 0.5, 1, 1];
 	var normals = [0, 1, 0];
 	var indices = [0];
 	for(var i = 0; i <= 360; i += step){
 		vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0); vertices.push(Math.sin(i*Math.PI/180));
-		colors.push(1); colors.push(0); colors.push(0); colors.push(1);
+		colors.push(0); colors.push(0.5); colors.push(1); colors.push(1);
 		normals.push(0); normals.push(1); normals.push(0);
 		indices.push(i/step + 1);
 	}
@@ -169,8 +169,7 @@ function drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n) {
 	modelMatrix = popMatrix();
 }
 
-function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
-	gl.uniform1i(u_UseTextures, 1);
+function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, n){
 	pushMatrix(modelMatrix);
 		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 		g_normalMatrix.setInverseOf(modelMatrix);
@@ -180,12 +179,11 @@ function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n)
 	modelMatrix = popMatrix();
 }
 
-function loadTexture(gl, texture, u_Sampler, u_UseTextures){
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+function loadTexture(gl, texture, sampler){
+    gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, texture.image);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.uniform1i(u_Sampler, 0);
-	gl.uniform1i(u_UseTextures, 1);
+    gl.uniform1i(sampler, 0);
 }
