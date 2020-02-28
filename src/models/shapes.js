@@ -141,7 +141,7 @@ function initVertexBuffers(gl){
 }
 
 function drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n) {
-	gl.uniform1i(u_UseTextures, 0);
+	gl.uniform1i(u_UseTextures, false);
 	pushMatrix(modelMatrix);
 		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 		g_normalMatrix.setInverseOf(modelMatrix);
@@ -152,7 +152,7 @@ function drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n) {
 }
 
 function drawBoxWithTexture(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
-	gl.uniform1i(u_UseTextures, 1);
+	gl.uniform1i(u_UseTextures, true);
 	pushMatrix(modelMatrix);
 		gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 		g_normalMatrix.setInverseOf(modelMatrix);
