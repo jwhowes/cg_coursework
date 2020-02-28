@@ -1,22 +1,22 @@
 var VSHADER_SOURCE =
 	"attribute vec4 a_Position;\n\
 	attribute vec4 a_Color;\n\
-    attribute vec4 a_Normal;\n\
-    attribute vec2 a_TexCoords;\n\
+	attribute vec4 a_Normal;\n\
+	attribute vec2 a_TexCoords;\n\
 	uniform mat4 u_ModelMatrix;\n\
 	uniform mat4 u_NormalMatrix;\n\
 	uniform mat4 u_ViewMatrix;\n\
-    uniform mat4 u_ProjMatrix;\n\
+	uniform mat4 u_ProjMatrix;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
-    varying vec3 v_Normal;\n\
-    varying vec2 v_TexCoords;\n\
+	varying vec3 v_Normal;\n\
+	varying vec2 v_TexCoords;\n\
 	void main(){\n\
 		gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n\
 		v_Position = vec3(u_ModelMatrix * a_Position);\n\
 		v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n\
-        v_Color = a_Color;\n\
-        v_TexCoords = a_TexCoords;\n\
+		v_Color = a_Color;\n\
+		v_TexCoords = a_TexCoords;\n\
 	}";
 
 var FSHADER_SOURCE =
@@ -24,19 +24,19 @@ var FSHADER_SOURCE =
 	precision mediump float;\n\
 	#endif\n\
 	uniform vec3 u_LightColor;\n\
-    uniform vec3 u_S_LightPosition;\n\
-    uniform bool u_UseTextures;\n\
-    uniform vec3 u_AmbientLight;\n\
+	uniform vec3 u_S_LightPosition;\n\
+	uniform bool u_UseTextures;\n\
+	uniform vec3 u_AmbientLight;\n\
 	uniform sampler2D u_Sampler;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
-    varying vec3 v_Normal;\n\
-    varying vec2 v_TexCoords;\n\
+	varying vec3 v_Normal;\n\
+	varying vec2 v_TexCoords;\n\
 	void main() {\n\
 		vec3 normal = normalize(v_Normal);\n\
 		vec3 s_lightDirection = normalize(u_S_LightPosition - v_Position);\n\
 		float s_nDotL = max(dot(s_lightDirection, normal), 0.0);\n\
-        vec3 s_diffuse;\n\
+		vec3 s_diffuse;\n\
 		vec4 TexColor;\n\
 		vec3 ambient;\n\
 		if(u_UseTextures){\n\
@@ -46,7 +46,7 @@ var FSHADER_SOURCE =
 		}else{\n\
 			s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
 			ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
-        }\n\
+		}\n\
 		gl_FragColor = vec4(ambient + s_diffuse, v_Color.a);\n\
 	}";
 
@@ -59,6 +59,7 @@ var camera_x = 0.0;
 var camera_y = 2.5;
 var camera_z = 25.0;
 var camera_rotate = 4.71239;
+var sky_channel = true;
 
 function wait(ms){
 	var d = new Date();
@@ -88,15 +89,15 @@ function main(){
 	var u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
 	var u_ProjMatrix = gl.getUniformLocation(gl.program, "u_ProjMatrix");
 	var u_LightColor = gl.getUniformLocation(gl.program, "u_LightColor");
-    var u_S_LightPosition = gl.getUniformLocation(gl.program, "u_S_LightPosition");
-    var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
+	var u_S_LightPosition = gl.getUniformLocation(gl.program, "u_S_LightPosition");
+	var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
 	var u_Sampler = gl.getUniformLocation(gl.program, "u_Sampler");
-    var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
+	var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
 
 	gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
 
 	var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
-    gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
+	gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
 	var ambientLight = new Vector3([1, 1, 1]);
 	ambientLight.normalize();
 	gl.uniform3fv(u_AmbientLight, ambientLight.elements);
@@ -108,9 +109,13 @@ function main(){
 	document.onkeydown = function(ev){
 		keydown(ev);
 	};
-	TVTexture = gl.createTexture();
-	TVTexture.image = new Image();
-	TVTexture.image.src = "../resources/sky.jpg";
+	SkyTexture = gl.createTexture();
+	SkyTexture.image = new Image();
+	SkyTexture.image.src = "../resources/sky.jpg";
+	
+	LenaTexture = gl.createTexture();
+	LenaTexture.image = new Image();
+	LenaTexture.image.src = "../resources/lena.jpg";
 
 	WoodTexture = gl.createTexture();
 	WoodTexture.image = new Image();
@@ -152,6 +157,9 @@ function keydown(ev){
 			camera_z = 25.0;
 			camera_rotate = 4.71239;
 			break;
+		case 32: // space key
+			sky_channel = !sky_channel
+			break;
 	}
 }
 
@@ -159,19 +167,19 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 	return function(timestamp){
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-        light_r += 2*Math.PI/120;
-        modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
-        var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
-        gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
+		light_r += 2*Math.PI/120;
+		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
+		var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
+		gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 7.5, -5);
+			modelMatrix.translate(0, 8.5, -5);
 			modelMatrix.rotate(45*Math.sin(light_r), 0, 0, 1);
 			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(-5, 0, -10);
+			modelMatrix.translate(-6.5, 0, -10);
 			drawLamp(gl, u_ModelMatrix, u_NormalMatrix);
 			pushMatrix(modelMatrix);
 				modelMatrix.translate(0, -1, 0);
@@ -185,12 +193,18 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 			drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(-5, 0, -15);
+			modelMatrix.translate(-7, 1.25, -15);
+			modelMatrix.scale(1.5, 1.5, 1.5);
 			drawShelves(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
-		loadTexture(gl, TVTexture, u_Sampler);
+		if(sky_channel){
+			loadTexture(gl, SkyTexture, u_Sampler);
+		}else{
+			loadTexture(gl, LenaTexture, u_Sampler);
+		}
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 1.5, -15);
+			modelMatrix.translate(0, 2.5, -15);
+			modelMatrix.scale(1.25, 1.25, 1.25);
 			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		loadTexture(gl, WoodTexture, u_Sampler);
