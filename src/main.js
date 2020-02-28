@@ -96,7 +96,7 @@ function main(){
 
 	gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
 
-	var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
+	var s_lightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
 	gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
 	var ambientLight = new Vector3([1, 1, 1]);
 	ambientLight.normalize();
@@ -169,7 +169,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 		light_r += 2*Math.PI/120;
 		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
-		var s_lightPos = new Vector3([-5 - camera_x, 1 - camera_y, -10 - camera_z]);
+		var s_lightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
 		gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
