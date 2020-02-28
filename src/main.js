@@ -216,6 +216,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 0, -15.5);
 			modelMatrix.rotate(90, 1, 0, 0);
+			modelMatrix.rotate(90, 0, 1, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		loadTexture(gl, PaintingTexture, u_Sampler);
