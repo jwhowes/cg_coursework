@@ -80,7 +80,7 @@ function drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n)
 			drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		modelMatrix.rotate(180, 0, 1, 0);
-		modelMatrix.translate(0, 0, -4.7);
+		modelMatrix.translate(0, 0, -4.9);
 		pushMatrix(modelMatrix);
 			if(chairs_moving){
 				modelMatrix.translate(0, 0, -0.25*Math.sin(chair_move_amount));

@@ -196,10 +196,10 @@ function keydown(ev){
 			sky_channel = !sky_channel
 			break;
 		case 74: // 'j' key
-			table_rotate -= 0.2;
+			table_rotate -= 0.4;
 			break;
 		case 76: // 'l' key
-			table_rotate += 0.2;
+			table_rotate += 0.4;
 			break;
 		case 17: // Left control
 			chairs_moving = !chairs_moving;
