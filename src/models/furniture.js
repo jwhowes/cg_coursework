@@ -55,18 +55,38 @@ function drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n)
 	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	pushMatrix(modelMatrix);
 		modelMatrix.translate(0, -0.5, -1.25);
-		drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		pushMatrix(modelMatrix);
+			if(chairs_moving){
+				modelMatrix.translate(0, 0, 0.125*Math.sin(chair_move_amount));
+			}
+			drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix = popMatrix();
 		modelMatrix.translate(0, 0, 2.5);
 		modelMatrix.rotate(180, 0, 1, 0);
-		drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		pushMatrix(modelMatrix);
+			if(chairs_moving){
+				modelMatrix.translate(0, 0, 0.125*Math.sin(chair_move_amount));
+			}
+			drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix = popMatrix();
 	modelMatrix = popMatrix();
 	pushMatrix(modelMatrix);
 		modelMatrix.rotate(90, 0, 1, 0);
 		modelMatrix.translate(0, -0.5, -2.45);
-		drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		pushMatrix(modelMatrix);
+			if(chairs_moving){
+				modelMatrix.translate(0, 0, 0.25*Math.sin(chair_move_amount));
+			}
+			drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix = popMatrix();
 		modelMatrix.rotate(180, 0, 1, 0);
 		modelMatrix.translate(0, 0, -4.7);
-		drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		pushMatrix(modelMatrix);
+			if(chairs_moving){
+				modelMatrix.translate(0, 0, -0.25*Math.sin(chair_move_amount));
+			}
+			drawChair(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
+		modelMatrix = popMatrix();
 	modelMatrix = popMatrix();
 	drawTable(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 }

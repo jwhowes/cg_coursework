@@ -1,3 +1,4 @@
+//TODO: Implement normal map for the brick wall (have to load it into TEXTURE1 and put that into u_Sampler_normal as a uniform).
 var VSHADER_SOURCE =
 	"attribute vec4 a_Position;\n\
 	attribute vec4 a_Color;\n\
@@ -24,30 +25,44 @@ var FSHADER_SOURCE =
 	precision mediump float;\n\
 	#endif\n\
 	uniform vec3 u_LightColor;\n\
-	uniform vec3 u_S_LightPosition;\n\
+    uniform vec3 u_s_LightPosition;\n\
+    uniform vec3 u_d_LightPosition;\n\
 	uniform bool u_UseTextures;\n\
+	uniform bool u_UseNormalMap;\n\
 	uniform vec3 u_AmbientLight;\n\
 	uniform sampler2D u_Sampler;\n\
+	uniform sampler2D u_Sampler_normal;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
 	varying vec3 v_Normal;\n\
 	varying vec2 v_TexCoords;\n\
 	void main() {\n\
-		vec3 normal = normalize(v_Normal);\n\
-		vec3 s_lightDirection = normalize(u_S_LightPosition - v_Position);\n\
-		float s_nDotL = max(dot(s_lightDirection, normal), 0.0);\n\
-		vec3 s_diffuse;\n\
+		vec3 normal;\n\
+		if(u_UseNormalMap){\n\
+			normal = normalize(texture2D(u_Sampler_normal, v_TexCoords).rgb);\n\
+		}else{\n\
+			normal = normalize(v_Normal);\n\
+		}\n\
+		vec3 s_lightDirection = normalize(u_s_LightPosition - v_Position);\n\
+        float s_nDotL = max(dot(normal, s_lightDirection), 0.0);\n\
+        vec3 d_lightDirection = normalize(u_d_LightPosition - v_Position);\n\
+        float d_nDotL = max(dot(normal, d_lightDirection), 0.0);\n\
+        vec3 s_diffuse;\n\
+        vec3 d_diffuse;\n\
 		vec4 TexColor;\n\
 		vec3 ambient;\n\
 		if(u_UseTextures){\n\
 			vec4 TexColor = texture2D(u_Sampler, v_TexCoords);\n\
-			s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
+            s_diffuse = u_LightColor * TexColor.rgb * s_nDotL;\n\
+            d_diffuse = u_LightColor * TexColor.rgb * d_nDotL;\n\
 			ambient = 0.25 * u_AmbientLight * TexColor.rgb;\n\
+			gl_FragColor = vec4(ambient + 0.5*(s_diffuse + d_diffuse), TexColor.a);\n\
 		}else{\n\
-			s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
+            s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
+            d_diffuse = u_LightColor * v_Color.rgb * d_nDotL;\n\
 			ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
+			gl_FragColor = vec4(ambient + 0.5*(s_diffuse + 0.5*d_diffuse), v_Color.a);\n\
 		}\n\
-		gl_FragColor = vec4(ambient + s_diffuse, v_Color.a);\n\
 	}";
 
 var modelMatrix = new Matrix4();
@@ -60,6 +75,9 @@ var camera_y = 2.5;
 var camera_z = 25.0;
 var camera_rotate = 4.71239;
 var sky_channel = true;
+var table_rotate = 0.0;
+var chairs_moving = false;
+var chair_move_amount = 0.0;
 
 function wait(ms){
 	var d = new Date();
@@ -89,16 +107,21 @@ function main(){
 	var u_ViewMatrix = gl.getUniformLocation(gl.program, "u_ViewMatrix");
 	var u_ProjMatrix = gl.getUniformLocation(gl.program, "u_ProjMatrix");
 	var u_LightColor = gl.getUniformLocation(gl.program, "u_LightColor");
-	var u_S_LightPosition = gl.getUniformLocation(gl.program, "u_S_LightPosition");
+    var u_s_LightPosition = gl.getUniformLocation(gl.program, "u_s_LightPosition");
+    var u_d_LightPosition = gl.getUniformLocation(gl.program, "u_d_LightPosition");
 	var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
 	var u_Sampler = gl.getUniformLocation(gl.program, "u_Sampler");
+	var u_Sampler_normal = gl.getUniformLocation(gl.program, "u_Sampler_normal")
 	var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
+	var u_UseNormalMap = gl.getUniformLocation(gl.program, "u_UseNormalMap");
 
-	gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
+	gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0, 1.0);
 
-	var s_lightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
-	gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
-	var ambientLight = new Vector3([1, 1, 1]);
+    var s_LightPos = new Vector3([-3.25 - camera_x, 1 - camera_y, -19.5 - camera_z]);
+    var d_LightPos = new Vector3([-camera_x, 8.5-camera_y, -5-camera_z]);
+    gl.uniform3fv(u_s_LightPosition, s_LightPos.elements);
+    gl.uniform3fv(u_d_LightPosition, d_LightPos.elements);
+	var ambientLight = new Vector3([1, 1, 1, 1]);
 	ambientLight.normalize();
 	gl.uniform3fv(u_AmbientLight, ambientLight.elements);
 
@@ -121,14 +144,22 @@ function main(){
 	WoodTexture.image = new Image();
 	WoodTexture.image.src = "../resources/wood.jpg";
 
+	WoodNormal = gl.createTexture();
+	WoodNormal.image = new Image();
+	WoodNormal.image.src = "../resources/wood_normal.jpg";
+
 	BrickTexture = gl.createTexture();
 	BrickTexture.image = new Image();
 	BrickTexture.image.src = "../resources/brick.jpg";
 
+	BrickNormal = gl.createTexture();
+	BrickNormal.image = new Image();
+	BrickNormal.image.src = "../resources/brick_normal.jpg"
+
 	PaintingTexture = gl.createTexture();
 	PaintingTexture.image = new Image();
 	PaintingTexture.image.src = "../resources/painting.jpg";
-	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_UseTextures, u_Sampler));
+	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap));
 }
 
 function keydown(ev){
@@ -156,21 +187,43 @@ function keydown(ev){
 			camera_y = 2.5;
 			camera_z = 25.0;
 			camera_rotate = 4.71239;
+			chairs_moving = false;
+			chair_move_amount = 0;
+			table_rotate = 0;
+			sky_channel = true;
 			break;
 		case 32: // space key
 			sky_channel = !sky_channel
 			break;
+		case 74: // 'j' key
+			table_rotate -= 0.2;
+			break;
+		case 76: // 'l' key
+			table_rotate += 0.2;
+			break;
+		case 17: // Left control
+			chairs_moving = !chairs_moving;
+			if(!chairs_moving){
+				chair_move_amount = 0;
+			}
+			break;
 	}
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_UseTextures, u_Sampler){
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap){
 	return function(timestamp){
+		if(chairs_moving){
+			chair_move_amount += 0.1;
+		}
 		viewMatrix.setLookAt(0, 0, 0, Math.cos(camera_rotate), 0, Math.sin(camera_rotate), 0, 1, 0);
 		gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 		light_r += 2*Math.PI/120;
 		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
-		var s_lightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
-		gl.uniform3fv(u_S_LightPosition, s_lightPos.elements);
+        var s_LightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
+        var d_LightPos = new Vector3([-camera_x, 8.5-camera_y, -5-camera_z]);
+
+        gl.uniform3fv(u_s_LightPosition, s_LightPos.elements);
+        gl.uniform3fv(u_d_LightPosition, d_LightPos.elements);
 
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		pushMatrix(modelMatrix);
@@ -190,10 +243,11 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(5, 0, -5);
 			modelMatrix.rotate(90, 0, 1, 0);
+			modelMatrix.rotate(table_rotate, 0, 1, 0);
 			drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(-7, 1.25, -15);
+			modelMatrix.translate(-7, 1.25, -19.5);
 			modelMatrix.scale(1.5, 1.5, 1.5);
 			drawShelves(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
@@ -203,28 +257,32 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition
 			loadTexture(gl, LenaTexture, u_Sampler);
 		}
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 2.5, -15);
+			modelMatrix.translate(0, 2.5, -19.5);
 			modelMatrix.scale(1.25, 1.25, 1.25);
 			drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
+		gl.uniform1i(u_UseNormalMap, true);
 		loadTexture(gl, WoodTexture, u_Sampler);
+		loadNormalMap(gl, WoodNormal, u_Sampler_normal);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, -2.5, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		loadTexture(gl, BrickTexture, u_Sampler);
+		loadNormalMap(gl, BrickNormal, u_Sampler_normal);
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(0, 0, -15.5);
+			modelMatrix.translate(0, 0, -20);
 			modelMatrix.rotate(90, 1, 0, 0);
 			modelMatrix.rotate(90, 0, 1, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
+		gl.uniform1i(u_UseNormalMap, false);
 		loadTexture(gl, PaintingTexture, u_Sampler);
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(7.5, 3.5, -15);
+			modelMatrix.translate(7.5, 3.5, -19.5);
 			drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
-		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_S_LightPosition, u_UseTextures, u_Sampler));
+		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap));
 	}
 }
 
