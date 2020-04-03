@@ -1,4 +1,3 @@
-//TODO: Implement normal map for the brick wall (have to load it into TEXTURE1 and put that into u_Sampler_normal as a uniform).
 var VSHADER_SOURCE =
 	"attribute vec4 a_Position;\n\
 	attribute vec4 a_Color;\n\
