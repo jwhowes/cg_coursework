@@ -287,8 +287,8 @@ function drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 	]);
 	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
 	pushMatrix(modelMatrix);
-		modelMatrix.translate(0, -1.25, 0);
-		modelMatrix.scale(0.1, 2.5, 0.1);
+		modelMatrix.translate(0, -1.875, 0);
+		modelMatrix.scale(0.1, 3.75, 0.1);
 		drawbox(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 	modelMatrix = popMatrix();
 	var n = initCylinderVertexBuffers(gl, 1.4, true);

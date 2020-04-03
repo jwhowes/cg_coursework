@@ -61,7 +61,7 @@ var FSHADER_SOURCE =
             s_diffuse = u_LightColor * v_Color.rgb * s_nDotL;\n\
             d_diffuse = u_LightColor * v_Color.rgb * d_nDotL;\n\
 			ambient = 0.25 * u_AmbientLight * v_Color.rgb;\n\
-			gl_FragColor = vec4(ambient + 0.5*(s_diffuse + 0.5*d_diffuse), v_Color.a);\n\
+			gl_FragColor = vec4(ambient + 0.5*(s_diffuse + d_diffuse), v_Color.a);\n\
 		}\n\
 	}";
 
@@ -220,7 +220,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 		light_r += 2*Math.PI/120;
 		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
         var s_LightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
-        var d_LightPos = new Vector3([-camera_x, 8.5-camera_y, -5-camera_z]);
+        var d_LightPos = new Vector3([4*Math.sin(0.785398*Math.sin(light_r)) - camera_x, -4*Math.cos(0.785398*Math.sin(light_r)) + 8.5 - camera_y, -5 - camera_z]);
 
         gl.uniform3fv(u_s_LightPosition, s_LightPos.elements);
         gl.uniform3fv(u_d_LightPosition, d_LightPos.elements);
@@ -241,7 +241,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 		modelMatrix = popMatrix();
 		var n = initVertexBuffers(gl);
 		pushMatrix(modelMatrix);
-			modelMatrix.translate(5, 0, -5);
+			modelMatrix.translate(0, 0, -5);
 			modelMatrix.rotate(90, 0, 1, 0);
 			modelMatrix.rotate(table_rotate, 0, 1, 0);
 			drawTableAndChairs(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
