@@ -1,5 +1,8 @@
 var VSHADER_SOURCE =
-	"attribute vec4 a_Position;\n\
+	"#ifdef GL_ES\n\
+	precision mediump float;\n\
+	#endif\n\
+	attribute vec4 a_Position;\n\
 	attribute vec4 a_Color;\n\
 	attribute vec4 a_Normal;\n\
 	attribute vec2 a_TexCoords;\n\
@@ -36,16 +39,36 @@ var FSHADER_SOURCE =
 	varying vec3 v_Normal;\n\
 	varying vec2 v_TexCoords;\n\
 	void main() {\n\
+		vec3 s_lightDirection;\n\
+		vec3 d_lightDirection;\n\
 		vec3 normal;\n\
 		if(u_UseNormalMap){\n\
-			normal = normalize(texture2D(u_Sampler_normal, v_TexCoords).rgb);\n\
+			normal = normalize(2.0 * texture2D(u_Sampler_normal, v_TexCoords).rgb - 0.5);\n\
+			vec3 t;\n\
+			vec3 c1 = cross(normal, vec3(0.0, 0.0, 1.0));\n\
+			vec3 c2 = cross(normal, vec3(0.0, 1.0, 0.0));\n\
+			if(length(c1) > length(c2)){\n\
+				t = normalize(c1);\n\
+			}else{\n\
+				t = normalize(c2);\n\
+			}\n\
+			vec3 b = cross(t, normal);\n\
+			t = t - dot(t, normal) * normal;\n\
+			b = b - dot(normal, b) * normal - dot(t, b) * t;\n\
+			mat3 tbn = mat3(\n\
+				vec3(t.x, b.x, normal.x),\n\
+				vec3(t.y, b.y, normal.y),\n\
+				vec3(t.z, b.z, normal.z)\n\
+				);\n\
+			s_lightDirection = normalize(u_s_LightPosition*tbn - v_Position);\n\
+			d_lightDirection = normalize(u_d_LightPosition*tbn - v_Position);\n\
 		}else{\n\
 			normal = normalize(v_Normal);\n\
+			s_lightDirection = normalize(u_s_LightPosition - v_Position);\n\
+			d_lightDirection = normalize(u_d_LightPosition - v_Position);\n\
 		}\n\
-		vec3 s_lightDirection = normalize(u_s_LightPosition - v_Position);\n\
-        float s_nDotL = max(dot(normal, s_lightDirection), 0.0);\n\
-        vec3 d_lightDirection = normalize(u_d_LightPosition - v_Position);\n\
-        float d_nDotL = max(dot(normal, d_lightDirection), 0.0);\n\
+		float s_nDotL = max(dot(s_lightDirection, normal), 0.05);\n\
+		float d_nDotL = max(dot(d_lightDirection, normal), 0.05);\n\
         vec3 s_diffuse;\n\
         vec3 d_diffuse;\n\
 		vec4 TexColor;\n\
