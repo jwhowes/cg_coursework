@@ -38,14 +38,14 @@ var FSHADER_SOURCE =
 	void main() {\n\
 		vec3 normal;\n\
 		if(u_UseNormalMap){\n\
-			normal = normalize(texture2D(u_Sampler_normal, v_TexCoords).rgb);\n\
+			normal = normalize(2.0 * texture2D(u_Sampler_normal, v_TexCoords).rgb - 0.5);\n\
 		}else{\n\
 			normal = normalize(v_Normal);\n\
 		}\n\
 		vec3 s_lightDirection = normalize(u_s_LightPosition - v_Position);\n\
-        float s_nDotL = max(dot(normal, s_lightDirection), 0.0);\n\
+        float s_nDotL = max(dot(normal, s_lightDirection), 0.1);\n\
         vec3 d_lightDirection = normalize(u_d_LightPosition - v_Position);\n\
-        float d_nDotL = max(dot(normal, d_lightDirection), 0.0);\n\
+        float d_nDotL = max(dot(normal, d_lightDirection), 0.1);\n\
         vec3 s_diffuse;\n\
         vec3 d_diffuse;\n\
 		vec4 TexColor;\n\
