@@ -1,5 +1,5 @@
-Make a draw chair function based on the view model matrix and normal matrices (so we can draw chairs all over and whatnot).
-	- Also do for other furniture to make scene composition easier.
-	- The issue with the current situation is that certain functions rely on the cube vertices being loaded.
-
-Transformations happen in the opposite order to what you think (this is why your translations are going weird).
+TODO:
+	- README
+		- Should I mention that edge gives the best results? (It may just be on my machine)
+	 		- Maybe put 'in my experience...'
+	- Comments for shapes.js
