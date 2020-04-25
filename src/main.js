@@ -235,7 +235,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 		light_r += 2*Math.PI/120;
 		modelMatrix.setTranslate(-camera_x, -camera_y, -camera_z);
         var s_LightPos = new Vector3([-6.5 - camera_x, 1 - camera_y, -10 - camera_z]);
-        var d_LightPos = new Vector3([4*Math.sin(0.785398*Math.sin(light_r)) - camera_x, -4*Math.cos(0.785398*Math.sin(light_r)) + 8.5 - camera_y, -5 - camera_z]);
+        var d_LightPos = new Vector3([4*Math.sin(1.0472*Math.sin(light_r)) - camera_x, -4*Math.cos(1.0472*Math.sin(light_r)) + 8.5 - camera_y, -5 - camera_z]);
         gl.uniform3fv(u_s_LightPosition, s_LightPos.elements);
 		gl.uniform3fv(u_d_LightPosition, d_LightPos.elements);
 		
@@ -245,7 +245,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 		// Draw hanging light
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 8.5, -5);
-			modelMatrix.rotate(45*Math.sin(light_r), 0, 0, 1);
+			modelMatrix.rotate(60*Math.sin(light_r), 0, 0, 1);
 			drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures);
 		modelMatrix = popMatrix();
 
