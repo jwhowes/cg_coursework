@@ -24,3 +24,4 @@ To control the animations:
 	- left and right arrow keys rotate camera
 	- 'Left control' toggles chair movement
 	- 'L' and 'J' rotate the table
+	- 'R' resets the scene (camera position, TV channel etc.)
