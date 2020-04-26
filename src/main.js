@@ -104,8 +104,12 @@ function main(){
 	}
 	// Clear buffers
 	gl.clearColor(0, 0, 0, 1);
-	gl.enable(gl.DEPTH_TEST);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	// Set parameters
+	gl.enable(gl.DEPTH_TEST);
+	gl.enable(gl.BLEND);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);  // Enable alpha blending
 
 	// Set up uniforms for shaders
 	var u_ModelMatrix = gl.getUniformLocation(gl.program, "u_ModelMatrix");

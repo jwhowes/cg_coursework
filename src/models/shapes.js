@@ -47,7 +47,7 @@ function initCylinderVertexBuffers(gl, ratio, isLampShade){
 		vertices.push(ratio*Math.cos(i*Math.PI/180)); vertices.push(-0.5); vertices.push(ratio*Math.sin(i*Math.PI/180));
 		vertices.push(Math.cos(i*Math.PI/180)); vertices.push(0.5); vertices.push(Math.sin(i*Math.PI/180));
 		indices.push(i/step);
-		colors.push(0); colors.push(0.5); colors.push(1); colors.push((isLampShade) ? 0.75 : 1);
+		colors.push(0); colors.push(0.5); colors.push(1); colors.push((isLampShade) ? 0.5 : 1);
 		normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
 		normals.push(Math.cos(i*Math.PI/180)); normals.push(0); normals.push(Math.sin(i*Math.PI/180));
 	}
