@@ -1,5 +1,3 @@
-TODO:
-	- README
-		- Should I mention that edge gives the best results? (It may just be on my machine)
-	 		- Maybe put 'in my experience...'
-	- Comments for shapes.js
+What I could add:
+	- Side walls
+	- Another piece of furniture (something on the table?)
