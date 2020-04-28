@@ -124,14 +124,6 @@ function initVertexBuffers(gl){
 		0.0,-1.0, 0.0,   0.0,-1.0, 0.0,   0.0,-1.0, 0.0,   0.0,-1.0, 0.0,
 		0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0
     ]);
-    var texCoords = new Float32Array([
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
-        1.0, 1.0,    0.0, 1.0,   0.0, 0.0,   1.0, 0.0
-      ]);
 	var indices = new Uint8Array([
 		0, 1, 2,   0, 2, 3,
 		4, 5, 6,   4, 6, 7,
@@ -143,7 +135,6 @@ function initVertexBuffers(gl){
 	// Initialise buffers and set values
 	initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT);
     initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT);
-	initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
 
 	var indexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);

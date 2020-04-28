@@ -176,6 +176,27 @@ function drawShelves(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
 
 // Draws a TV
 function drawTV(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
+	var texCoords;
+	if(sky_channel){
+		texCoords = new Float32Array([
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5,
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5,
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5,
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5,
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5,
+			0.25, 0.75,    0.0, 0.75,   0.0, 0.5,   0.25, 0.5
+		]);
+	}else{
+		texCoords = new Float32Array([
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75,
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75,
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75,
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75,
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75,
+			0.75, 1.0,    0.5, 1.0,   0.5, 0.75,   0.75, 0.75
+		]);
+	}
+	initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
 	// Initialise colours for vertices
 	var colors = new Float32Array([
 		0.4118, 0.3843, 0.3451, 1,   0.4118, 0.3843, 0.3451, 1,   0.4118, 0.3843, 0.3451, 1,  0.4118, 0.3843, 0.3451, 1,
@@ -347,6 +368,15 @@ function drawHangingLight(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures){
 
 // Draws a painting
 function drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
+	var texCoords = new Float32Array([
+		1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75,
+        1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75,
+        1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75,
+        1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75,
+        1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75,
+        1.0, 1.0,    0.75, 1.0,   0.75, 0.75,   1.0, 0.75
+	]);
+	initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
 	// Draw painting with texture
 	pushMatrix(modelMatrix);
 		modelMatrix.scale(2.8125, 5, 0.1);
@@ -362,7 +392,6 @@ function drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n){
 		0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,   0.396, 0.263, 0.129, 1,  0.396, 0.263, 0.129, 1
 	]);
 	initArrayBuffer(gl, 'a_Color', colors, 4, gl.FLOAT);
-
 	// Draw frame
 	pushMatrix(modelMatrix);
 		modelMatrix.scale(2.8125, 0.25, 0.1);

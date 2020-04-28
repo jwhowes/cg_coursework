@@ -3,6 +3,7 @@ var VSHADER_SOURCE =
 	attribute vec4 a_Color;\n\
 	attribute vec4 a_Normal;\n\
 	attribute vec2 a_TexCoords;\n\
+	attribute vec2 a_NormalCoords;\n\
 	uniform mat4 u_ModelMatrix;\n\
 	uniform mat4 u_NormalMatrix;\n\
 	uniform mat4 u_ViewMatrix;\n\
@@ -11,12 +12,14 @@ var VSHADER_SOURCE =
 	varying vec3 v_Position;\n\
 	varying vec3 v_Normal;\n\
 	varying vec2 v_TexCoords;\n\
+	varying vec2 v_NormalCoords;\n\
 	void main(){\n\
 		gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n\
 		v_Position = vec3(u_ModelMatrix * a_Position);\n\
 		v_Normal = normalize(vec3(u_NormalMatrix * a_Normal));\n\
 		v_Color = a_Color;\n\
 		v_TexCoords = a_TexCoords;\n\
+		v_NormalCoords = a_NormalCoords;\n\
 	}";
 
 var FSHADER_SOURCE =
@@ -30,15 +33,15 @@ var FSHADER_SOURCE =
 	uniform bool u_UseNormalMap;\n\
 	uniform vec3 u_AmbientLight;\n\
 	uniform sampler2D u_Sampler;\n\
-	uniform sampler2D u_Sampler_normal;\n\
 	varying vec4 v_Color;\n\
 	varying vec3 v_Position;\n\
 	varying vec3 v_Normal;\n\
 	varying vec2 v_TexCoords;\n\
+	varying vec2 v_NormalCoords;\n\
 	void main() {\n\
 		vec3 normal;\n\
 		if(u_UseNormalMap){\n\
-			normal = normalize(2.0 * texture2D(u_Sampler_normal, v_TexCoords).rgb - 0.5);\n\
+			normal = normalize(2.0 * texture2D(u_Sampler, v_NormalCoords).rgb - 0.5);\n\
 		}else{\n\
 			normal = normalize(v_Normal);\n\
 		}\n\
@@ -121,7 +124,6 @@ function main(){
     var u_d_LightPosition = gl.getUniformLocation(gl.program, "u_d_LightPosition");
 	var u_AmbientLight = gl.getUniformLocation(gl.program, "u_AmbientLight");
 	var u_Sampler = gl.getUniformLocation(gl.program, "u_Sampler");
-	var u_Sampler_normal = gl.getUniformLocation(gl.program, "u_Sampler_normal")
 	var u_UseTextures = gl.getUniformLocation(gl.program, "u_UseTextures");
 	var u_UseNormalMap = gl.getUniformLocation(gl.program, "u_UseNormalMap");
 
@@ -145,37 +147,15 @@ function main(){
 	};
 
 	// Load textures
-	SkyTexture = gl.createTexture();
-	SkyTexture.image = new Image();
-	SkyTexture.image.src = "../resources/sky.jpg";
-	
-	LenaTexture = gl.createTexture();
-	LenaTexture.image = new Image();
-	LenaTexture.image.src = "../resources/lena.jpg";
-
-	WoodTexture = gl.createTexture();
-	WoodTexture.image = new Image();
-	WoodTexture.image.src = "../resources/wood.jpg";
-
-	BrickTexture = gl.createTexture();
-	BrickTexture.image = new Image();
-	BrickTexture.image.src = "../resources/brick.jpg";
-
-	PaintingTexture = gl.createTexture();
-	PaintingTexture.image = new Image();
-	PaintingTexture.image.src = "../resources/painting.jpg";
-
-	// Normal maps for brick and wood textures
-	BrickNormal = gl.createTexture();
-	BrickNormal.image = new Image();
-	BrickNormal.image.src = "../resources/brick_normal.jpg"
-	
-	WoodNormal = gl.createTexture();
-	WoodNormal.image = new Image();
-	WoodNormal.image.src = "../resources/wood_normal.jpg";
+	Textures = gl.createTexture();
+	Textures.image = new Image();
+	Textures.image.src = "../resources/textures.png";
+	Textures.image.onload = function(){
+		loadTexture(gl, Textures, u_Sampler);
+	}
 	
 	// requestAnimationFrame function allows browser to set frame rate based on PC specs
-	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap));
+	requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_UseNormalMap));
 }
 
 // Handle inputs from user
@@ -228,7 +208,7 @@ function keydown(ev){
 }
 
 // Main draw function, run based on fps set by browser
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap){
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_UseNormalMap){
 	return function(timestamp){
 		// Increment animations
 		if(chairs_moving){
@@ -282,18 +262,12 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 		modelMatrix = popMatrix();
 
 		// Set painting exture and draw
-		loadTexture(gl, PaintingTexture, u_Sampler);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(7.5, 3.5, -19.5);
 			drawPainting(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 
 		// Set TV texture and draw
-		if(sky_channel){
-			loadTexture(gl, SkyTexture, u_Sampler);
-		}else{
-			loadTexture(gl, LenaTexture, u_Sampler);
-		}
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 2.5, -19.5);
 			modelMatrix.scale(1.25, 1.25, 1.25);
@@ -302,16 +276,48 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 
 		// Set brick texture, normal map and draw
 		gl.uniform1i(u_UseNormalMap, true);
-		loadTexture(gl, WoodTexture, u_Sampler);
-		loadNormalMap(gl, WoodNormal, u_Sampler_normal);
+		var texCoords = new Float32Array([
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5,
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5,
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5,
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5,
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5,
+			0.5, 0.75,    0.25, 0.75,   0.25, 0.5,   0.5, 0.5
+		]);
+		initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
+		var normalCoords = new Float32Array([
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5,
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5,
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5,
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5,
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5,
+			0.75, 0.75,    0.5, 0.75,   0.5, 0.5,   0.75, 0.5
+		]);
+		initArrayBuffer(gl, 'a_NormalCoords', normalCoords, 2, gl.FLOAT);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, -2.5, 0);
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 
 		// Set wood texture, normal map and draw
-		loadTexture(gl, BrickTexture, u_Sampler);
-		loadNormalMap(gl, BrickNormal, u_Sampler_normal);
+		var texCoords = new Float32Array([
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75,
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75,
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75,
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75,
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75,
+			0.25, 1.0,    0.0, 1.0,   0.0, 0.75,   0.25, 0.75
+		]);
+		initArrayBuffer(gl, 'a_TexCoords', texCoords, 2, gl.FLOAT);
+		var normalCoords = new Float32Array([
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75,
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75,
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75,
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75,
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75,
+			0.5, 1.0,    0.25, 1.0,   0.25, 0.75,   0.5, 0.75
+		]);
+		initArrayBuffer(gl, 'a_NormalCoords', normalCoords, 2, gl.FLOAT);
 		pushMatrix(modelMatrix);
 			modelMatrix.translate(0, 0, -20);
 			modelMatrix.rotate(90, 1, 0, 0);
@@ -319,7 +325,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition
 			drawGround(gl, u_ModelMatrix, u_NormalMatrix, u_UseTextures, n);
 		modelMatrix = popMatrix();
 		gl.uniform1i(u_UseNormalMap, false);
-		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_Sampler_normal, u_UseNormalMap));
+		requestAnimationFrame(draw(gl, u_ModelMatrix, u_NormalMatrix, u_ViewMatrix, u_s_LightPosition, u_d_LightPosition, u_UseTextures, u_Sampler, u_UseNormalMap));
 	}
 }
 
