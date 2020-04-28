@@ -1,3 +1,6 @@
+TODO:
+	- Comments surrounding new fancy texture sampling
+
 What I could add:
 	- Side walls
 	- Another piece of furniture (something on the table?)
