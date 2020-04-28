@@ -1,4 +1,5 @@
 node_modules/*
+*.xcf
 *lib/gl-matrix/*
 .*
 !.gitignore
